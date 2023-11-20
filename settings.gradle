@@ -1,0 +1,5 @@
+rootProject.name = 'planner-microservices'
+
+includeBuild 'planner-eureka-server'
+includeBuild 'planner-config'
+
