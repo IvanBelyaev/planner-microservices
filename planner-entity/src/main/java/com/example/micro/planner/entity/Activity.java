@@ -5,7 +5,7 @@ import lombok.*;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 @Entity
-@Table(name = "activity", schema = "todolist", catalog = "todolist")
+@Table(name = "activity", schema = "todo", catalog = "planner_todo")
 @Getter
 @Setter
 @NoArgsConstructor

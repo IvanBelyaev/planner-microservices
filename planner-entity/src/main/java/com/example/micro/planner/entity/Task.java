@@ -8,7 +8,7 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 import java.util.Date;
 
 @Entity
-@Table(name = "task", schema = "todolist", catalog = "todolist")
+@Table(name = "task", schema = "todo", catalog = "planner_todo")
 @Getter
 @Setter
 @NoArgsConstructor
