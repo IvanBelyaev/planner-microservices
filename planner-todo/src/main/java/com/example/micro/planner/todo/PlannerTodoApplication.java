@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 @SpringBootApplication
 @EntityScan(basePackages = "com.example.micro.planner.entity")
+@ComponentScan(basePackages = "com.example.micro.planner")
 @EnableJpaRepositories(basePackages = "com.example.micro.planner.todo.repo")
 public class PlannerTodoApplication {
 

@@ -30,5 +30,6 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
             Pageable pageable
     );
 
+    @Query("select t from Task t join fetch t.priority p join fetch t.category")
     List<Task> findByUserId(Long userId);
 }
