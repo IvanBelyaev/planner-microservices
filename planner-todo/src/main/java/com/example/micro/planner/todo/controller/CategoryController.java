@@ -41,6 +41,12 @@ public class CategoryController {
             return new ResponseEntity<>("field title MUST NOT be null", HttpStatus.NOT_ACCEPTABLE);
         }
 
+        if (category.getUserId() == null || category.getUserId() <= 0) {
+            return new ResponseEntity<>(
+                    "field userId MUST NOT be null and MUST be positive", HttpStatus.NOT_ACCEPTABLE
+            );
+        }
+
         return ResponseEntity.ok(categoryService.add(category));
     }
 
@@ -50,8 +56,10 @@ public class CategoryController {
             return new ResponseEntity<>("field id MUST NOT be null", HttpStatus.NOT_ACCEPTABLE);
         }
 
-        if (category.getUserId() == null || category.getUserId() == 0) {
-            return new ResponseEntity<>("field userId MUST NOT be null", HttpStatus.NOT_ACCEPTABLE);
+        if (category.getUserId() == null || category.getUserId() <= 0) {
+            return new ResponseEntity<>(
+                    "field userId MUST NOT be null and MUST be positive", HttpStatus.NOT_ACCEPTABLE
+            );
         }
 
         if (category.getTitle() == null || category.getTitle().isBlank()) {
