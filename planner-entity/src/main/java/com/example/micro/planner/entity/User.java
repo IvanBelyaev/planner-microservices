@@ -1,5 +1,6 @@
 package com.example.micro.planner.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
@@ -29,7 +30,8 @@ public class User {
 
     private String username;
 
-    @ManyToMany(mappedBy = "users", fetch = FetchType.EAGER)
+    @JsonIgnore
+    @ManyToMany(mappedBy = "users", fetch = FetchType.LAZY)
     private Set<Role> roles = new HashSet<>();
 
 

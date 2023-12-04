@@ -3,6 +3,7 @@ package com.example.micro.planner.todo.controller;
 import com.example.micro.planner.entity.Task;
 import com.example.micro.planner.todo.search.TaskSearchValues;
 import com.example.micro.planner.todo.service.TaskService;
+import com.example.micro.planner.utils.resttemplate.UserRestBuilder;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -21,7 +22,8 @@ import java.util.Optional;
 public class TaskController {
     private static final Integer DEFAULT_PAGE_SIZE = 10;
     private static final String ID_COLUMN = "id";
-    private TaskService taskService;
+    private final TaskService taskService;
+    private final UserRestBuilder userRestBuilder;
 
     @PostMapping("/{id}")
     public ResponseEntity<?> findById(@PathVariable Long id) {
@@ -44,14 +46,20 @@ public class TaskController {
             return new ResponseEntity<>("redundant field id MUST be null", HttpStatus.NOT_ACCEPTABLE);
         }
 
+        if (task.getTitle() == null || task.getTitle().isBlank()) {
+            return new ResponseEntity<>("field title MUST NOT be null", HttpStatus.NOT_ACCEPTABLE);
+        }
+
         if (task.getUserId() == null || task.getUserId() <= 0) {
             return new ResponseEntity<>(
                     "field userId MUST NOT be null and MUST be positive", HttpStatus.NOT_ACCEPTABLE
             );
         }
 
-        if (task.getTitle() == null || task.getTitle().isBlank()) {
-            return new ResponseEntity<>("field title MUST NOT be null", HttpStatus.NOT_ACCEPTABLE);
+        if (!userRestBuilder.exists(task.getUserId())) {
+            return new ResponseEntity<>(
+                    "There is no user with id = " + task.getUserId(), HttpStatus.NOT_ACCEPTABLE
+            );
         }
 
         if (task.getDate() == null) {
@@ -67,14 +75,20 @@ public class TaskController {
             return new ResponseEntity<>("field id MUST NOT be null", HttpStatus.NOT_ACCEPTABLE);
         }
 
+        if (task.getTitle() == null || task.getTitle().isBlank()) {
+            return new ResponseEntity<>("field title MUST NOT be null", HttpStatus.NOT_ACCEPTABLE);
+        }
+
         if (task.getUserId() == null || task.getUserId() <= 0) {
             return new ResponseEntity<>(
                     "field userId MUST NOT be null and MUST be positive", HttpStatus.NOT_ACCEPTABLE
             );
         }
 
-        if (task.getTitle() == null || task.getTitle().isBlank()) {
-            return new ResponseEntity<>("field title MUST NOT be null", HttpStatus.NOT_ACCEPTABLE);
+        if (!userRestBuilder.exists(task.getUserId())) {
+            return new ResponseEntity<>(
+                    "There is no user with id = " + task.getUserId(), HttpStatus.NOT_ACCEPTABLE
+            );
         }
 
         if (task.getDate() == null) {

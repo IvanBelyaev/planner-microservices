@@ -3,6 +3,7 @@ package com.example.micro.planner.todo.controller;
 import com.example.micro.planner.entity.Priority;
 import com.example.micro.planner.todo.search.PrioritySearchValues;
 import com.example.micro.planner.todo.service.PriorityService;
+import com.example.micro.planner.utils.resttemplate.UserRestBuilder;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,7 +15,8 @@ import java.util.List;
 @RequestMapping("/priority")
 @AllArgsConstructor
 public class PriorityController {
-    private PriorityService priorityService;
+    private final PriorityService priorityService;
+    private final UserRestBuilder userRestBuilder;
 
     @PostMapping("/{id}")
     public ResponseEntity<?> findById(@PathVariable Long id) {
@@ -46,6 +48,12 @@ public class PriorityController {
             );
         }
 
+        if (!userRestBuilder.exists(priority.getUserId())) {
+            return new ResponseEntity<>(
+                    "There is no user with id = " + priority.getUserId(), HttpStatus.NOT_ACCEPTABLE
+            );
+        }
+
         return ResponseEntity.ok(priorityService.add(priority));
     }
 
@@ -66,6 +74,12 @@ public class PriorityController {
         if (priority.getUserId() == null || priority.getUserId() <= 0) {
             return new ResponseEntity<>(
                     "field userId MUST NOT be null and MUST be positive", HttpStatus.NOT_ACCEPTABLE
+            );
+        }
+
+        if (!userRestBuilder.exists(priority.getUserId())) {
+            return new ResponseEntity<>(
+                    "There is no user with id = " + priority.getUserId(), HttpStatus.NOT_ACCEPTABLE
             );
         }
 

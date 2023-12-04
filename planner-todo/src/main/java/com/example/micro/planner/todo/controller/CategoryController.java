@@ -3,6 +3,7 @@ package com.example.micro.planner.todo.controller;
 import com.example.micro.planner.entity.Category;
 import com.example.micro.planner.todo.search.CategorySearchValues;
 import com.example.micro.planner.todo.service.CategoryService;
+import com.example.micro.planner.utils.resttemplate.UserRestBuilder;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,6 +16,7 @@ import java.util.List;
 @AllArgsConstructor
 public class CategoryController {
     private final CategoryService categoryService;
+    private final UserRestBuilder userRestBuilder;
 
     @PostMapping("/{id}")
     public ResponseEntity<?> findById(@PathVariable Long id) {
@@ -47,6 +49,12 @@ public class CategoryController {
             );
         }
 
+        if (!userRestBuilder.exists(category.getUserId())) {
+            return new ResponseEntity<>(
+                    "There is no user with id = " + category.getUserId(), HttpStatus.NOT_ACCEPTABLE
+            );
+        }
+
         return ResponseEntity.ok(categoryService.add(category));
     }
 
@@ -56,14 +64,20 @@ public class CategoryController {
             return new ResponseEntity<>("field id MUST NOT be null", HttpStatus.NOT_ACCEPTABLE);
         }
 
+        if (category.getTitle() == null || category.getTitle().isBlank()) {
+            return new ResponseEntity<>("field title MUST NOT be null", HttpStatus.NOT_ACCEPTABLE);
+        }
+
         if (category.getUserId() == null || category.getUserId() <= 0) {
             return new ResponseEntity<>(
                     "field userId MUST NOT be null and MUST be positive", HttpStatus.NOT_ACCEPTABLE
             );
         }
 
-        if (category.getTitle() == null || category.getTitle().isBlank()) {
-            return new ResponseEntity<>("field title MUST NOT be null", HttpStatus.NOT_ACCEPTABLE);
+        if (!userRestBuilder.exists(category.getUserId())) {
+            return new ResponseEntity<>(
+                    "There is no user with id = " + category.getUserId(), HttpStatus.NOT_ACCEPTABLE
+            );
         }
 
         categoryService.update(category);
