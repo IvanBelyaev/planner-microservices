@@ -3,7 +3,7 @@ package com.example.micro.planner.todo.controller;
 import com.example.micro.planner.entity.Category;
 import com.example.micro.planner.todo.search.CategorySearchValues;
 import com.example.micro.planner.todo.service.CategoryService;
-import com.example.micro.planner.utils.resttemplate.UserRestBuilder;
+import com.example.micro.planner.utils.webclient.UserWebClientBuilder;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,7 +16,7 @@ import java.util.List;
 @AllArgsConstructor
 public class CategoryController {
     private final CategoryService categoryService;
-    private final UserRestBuilder userRestBuilder;
+    private final UserWebClientBuilder userWebClientBuilder;
 
     @PostMapping("/{id}")
     public ResponseEntity<?> findById(@PathVariable Long id) {
@@ -49,7 +49,7 @@ public class CategoryController {
             );
         }
 
-        if (!userRestBuilder.exists(category.getUserId())) {
+        if (!userWebClientBuilder.exists(category.getUserId())) {
             return new ResponseEntity<>(
                     "There is no user with id = " + category.getUserId(), HttpStatus.NOT_ACCEPTABLE
             );
@@ -74,7 +74,7 @@ public class CategoryController {
             );
         }
 
-        if (!userRestBuilder.exists(category.getUserId())) {
+        if (!userWebClientBuilder.exists(category.getUserId())) {
             return new ResponseEntity<>(
                     "There is no user with id = " + category.getUserId(), HttpStatus.NOT_ACCEPTABLE
             );
