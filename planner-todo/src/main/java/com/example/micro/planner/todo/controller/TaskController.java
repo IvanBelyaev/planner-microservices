@@ -1,10 +1,10 @@
 package com.example.micro.planner.todo.controller;
 
 import com.example.micro.planner.entity.Task;
+import com.example.micro.planner.todo.feign.UserFeignClient;
 import com.example.micro.planner.todo.search.TaskSearchValues;
 import com.example.micro.planner.todo.service.TaskService;
-import com.example.micro.planner.utils.resttemplate.UserRestBuilder;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
@@ -18,12 +18,13 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/task")
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class TaskController {
+
     private static final Integer DEFAULT_PAGE_SIZE = 10;
     private static final String ID_COLUMN = "id";
     private final TaskService taskService;
-    private final UserRestBuilder userRestBuilder;
+    private final UserFeignClient userFeignClient;
 
     @PostMapping("/{id}")
     public ResponseEntity<?> findById(@PathVariable Long id) {
@@ -56,17 +57,15 @@ public class TaskController {
             );
         }
 
-        if (!userRestBuilder.exists(task.getUserId())) {
-            return new ResponseEntity<>(
-                    "There is no user with id = " + task.getUserId(), HttpStatus.NOT_ACCEPTABLE
-            );
+        if (userFeignClient.findById(task.getUserId()).getStatusCode() == HttpStatus.OK) {
+            if (task.getDate() == null) {
+                task.setDate(new Date());
+            }
+            return ResponseEntity.ok(taskService.add(task));
         }
 
-        if (task.getDate() == null) {
-            task.setDate(new Date());
-        }
-
-        return ResponseEntity.ok(taskService.add(task));
+        return new ResponseEntity<>(
+                "There is no user with id = " + task.getUserId(), HttpStatus.NOT_ACCEPTABLE);
     }
 
     @PutMapping("/")
@@ -85,19 +84,16 @@ public class TaskController {
             );
         }
 
-        if (!userRestBuilder.exists(task.getUserId())) {
-            return new ResponseEntity<>(
-                    "There is no user with id = " + task.getUserId(), HttpStatus.NOT_ACCEPTABLE
-            );
+        if (userFeignClient.findById(task.getUserId()).getStatusCode() == HttpStatus.OK) {
+            if (task.getDate() == null) {
+                task.setDate(new Date());
+            }
+            taskService.update(task);
+            return new ResponseEntity<>(HttpStatus.OK);
         }
 
-        if (task.getDate() == null) {
-            task.setDate(new Date());
-        }
-
-        taskService.update(task);
-
-        return new ResponseEntity<>(HttpStatus.OK);
+        return new ResponseEntity<>(
+                "There is no user with id = " + task.getUserId(), HttpStatus.NOT_ACCEPTABLE);
     }
 
     @DeleteMapping("/{id}")

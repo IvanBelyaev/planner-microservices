@@ -1,10 +1,10 @@
 package com.example.micro.planner.todo.controller;
 
 import com.example.micro.planner.entity.Priority;
+import com.example.micro.planner.todo.feign.UserFeignClient;
 import com.example.micro.planner.todo.search.PrioritySearchValues;
 import com.example.micro.planner.todo.service.PriorityService;
-import com.example.micro.planner.utils.resttemplate.UserRestBuilder;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -13,10 +13,11 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/priority")
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class PriorityController {
+
     private final PriorityService priorityService;
-    private final UserRestBuilder userRestBuilder;
+    private final UserFeignClient userFeignClient;
 
     @PostMapping("/{id}")
     public ResponseEntity<?> findById(@PathVariable Long id) {
@@ -48,13 +49,11 @@ public class PriorityController {
             );
         }
 
-        if (!userRestBuilder.exists(priority.getUserId())) {
-            return new ResponseEntity<>(
-                    "There is no user with id = " + priority.getUserId(), HttpStatus.NOT_ACCEPTABLE
-            );
+        if (userFeignClient.findById(priority.getUserId()).getStatusCode() == HttpStatus.OK) {
+            return ResponseEntity.ok(priorityService.add(priority));
         }
 
-        return ResponseEntity.ok(priorityService.add(priority));
+        return new ResponseEntity<>("There is no user with id = " + priority.getUserId(), HttpStatus.NOT_ACCEPTABLE);
     }
 
     @PutMapping("/")
@@ -77,15 +76,13 @@ public class PriorityController {
             );
         }
 
-        if (!userRestBuilder.exists(priority.getUserId())) {
-            return new ResponseEntity<>(
-                    "There is no user with id = " + priority.getUserId(), HttpStatus.NOT_ACCEPTABLE
-            );
+        if (userFeignClient.findById(priority.getUserId()).getStatusCode() == HttpStatus.OK) {
+            priorityService.update(priority);
+            return new ResponseEntity<>(HttpStatus.OK);
         }
 
-        priorityService.update(priority);
-
-        return new ResponseEntity<>(HttpStatus.OK);
+        return new ResponseEntity<>(
+                "There is no user with id = " + priority.getUserId(), HttpStatus.NOT_ACCEPTABLE);
     }
 
     @DeleteMapping("/{id}")
