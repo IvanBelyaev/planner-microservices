@@ -49,6 +49,9 @@ public class CategoryController {
             );
         }
 
+        userWebClientBuilder.getUserAsync(category.getUserId())
+                .subscribe(System.out::println);
+
         if (!userWebClientBuilder.exists(category.getUserId())) {
             return new ResponseEntity<>(
                     "There is no user with id = " + category.getUserId(), HttpStatus.NOT_ACCEPTABLE

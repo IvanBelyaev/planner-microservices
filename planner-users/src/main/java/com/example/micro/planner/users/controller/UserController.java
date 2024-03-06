@@ -3,7 +3,9 @@ package com.example.micro.planner.users.controller;
 import com.example.micro.planner.entity.User;
 import com.example.micro.planner.users.search.UserSearchValues;
 import com.example.micro.planner.users.service.UserService;
-import lombok.AllArgsConstructor;
+import com.example.micro.planner.utils.webclient.UserWebClientBuilder;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
@@ -12,14 +14,16 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
 
+@Slf4j
 @RestController
-@AllArgsConstructor
+@RequiredArgsConstructor
 @RequestMapping("/user")
 public class UserController {
     private static final Integer DEFAULT_PAGE_SIZE = 10;
     private static final String ID_COLUMN = "id";
 
-    private UserService userService;
+    private final UserService userService;
+    private final UserWebClientBuilder userWebClient;
 
     @PostMapping("/{id}")
     public ResponseEntity<?> findById(@PathVariable("id") Long id) {
@@ -57,7 +61,14 @@ public class UserController {
             return new ResponseEntity<>("field password MUST NOT be null", HttpStatus.NOT_ACCEPTABLE);
         }
 
-        return ResponseEntity.ok(userService.add(user));
+        User savedUser = userService.add(user);
+
+        userWebClient.initData(savedUser.getId())
+                .filter(Boolean::booleanValue)
+                .subscribe(result ->
+                        log.info("the data for the user with id = {} has been created", savedUser.getId()));
+
+        return ResponseEntity.ok(savedUser);
     }
 
     @PutMapping("/")
